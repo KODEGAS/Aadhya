@@ -36,11 +36,12 @@ Use the feature/issue identifier first when available: `<type>/Fxx-short-kebab-d
 4. Create a branch from the latest `main`.
 5. Implement only the issue scope.
 6. Run unit, integration, API and relevant security tests.
-7. Update documentation affected by the change.
+7. Verify test coverage for the changed behavior, including regression coverage where practical.
+8. Update documentation affected by the change.
 8. Open a pull request into `main`.
 9. Obtain review and pass CI.
-10. Squash-merge the PR and delete the branch.
-11. Move the Trello card to **Done** only after the Definition of Done is satisfied.
+11. Squash-merge the PR and delete the branch.
+12. Move the Trello card to **Done** only after the Definition of Done is satisfied.
 
 ## Main branch policy
 - No direct development commits to `main`.

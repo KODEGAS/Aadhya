@@ -21,6 +21,9 @@ Adhya uses separate configuration for:
 ## Data policy
 Only synthetic healthcare data is permitted during development, CI, staging and research unless an explicitly approved future process states otherwise.
 
+## Kubernetes configuration
+For Kubernetes-based environments, configuration is separated from container images and application code using Kubernetes `ConfigMap` resources for non-sensitive settings and Kubernetes `Secret` resources or an approved external secret manager for sensitive values. Deployment manifests should reference these resources rather than embedding environment-specific values. Resource-specific configuration should be reviewed alongside the Kubernetes deployment documentation.
+
 ## Configuration categories
 - Database connection
 - API gateway endpoints

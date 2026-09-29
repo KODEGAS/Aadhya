@@ -78,8 +78,9 @@ An agent must not start implementation merely because an issue exists.
 
 Before coding:
 
-- Read the GitHub Issue.
+- Read the GitHub Issue and any relevant sub-issues/subtasks.
 - Check its dependencies.
+- If an implementation plan, approach, or task-specific design exists, review it before implementation.
 - Inspect related code.
 - Inspect relevant documentation.
 - Identify API, database, FHIR and security impact.
@@ -213,6 +214,8 @@ Agents must not redesign this lifecycle without an approved architectural decisi
 ## 11. FHIR Rules
 
 FHIR is an interoperability layer and must not be treated as an afterthought.
+
+Agents must read the relevant official FHIR documentation/specification before implementing or modifying FHIR resources, profiles, mappings, validation, or FHIR-facing APIs. Repository FHIR design documents define Adhya-specific decisions; official FHIR documentation is the external technical reference.
 
 Current baseline mappings include:
 

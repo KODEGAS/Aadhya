@@ -24,6 +24,20 @@ It intentionally does not implement application services, authentication, FHIR A
 - Docker Engine
 - Docker Compose
 - Make
+- Node.js 22 LTS for the planned Next.js web application
+- Go 1.25 or later for the WSO2 FHIR Server integration/development workflow
+
+### WSO2 FHIR Server compatibility baseline
+
+The current WSO2 FHIR Server documentation identifies:
+
+| Component | Baseline |
+|---|---|
+| FHIR | R4 (4.0.1) |
+| Go | 1.25 or later |
+| PostgreSQL | 14 through 18 |
+
+The WSO2 FHIR Server is a Go-based FHIR R4 server backed by PostgreSQL. It can be introduced as the interoperability layer in a later F12 implementation step; it is intentionally not started by the F01 local Compose stack.
 
 ## Configuration
 

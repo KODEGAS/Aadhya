@@ -7,6 +7,12 @@ Closes #
 ## Design / Approach
 - 
 
+## UI Evidence
+- [ ] Not applicable
+- [ ] Screenshots attached for UI changes
+
+> For UI changes, attach screenshots showing the relevant changed states. Do not include real patient data, credentials, tokens, or other sensitive information.
+
 ## Validation
 - [ ] Unit tests
 - [ ] Integration/API tests

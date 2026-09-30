@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: adhya-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-adhya}
+      POSTGRES_USER: ${POSTGRES_USER:-adhya}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - adhya-postgres-data:/var/lib/postgresql/data
+    # FHIR server and other platform dependencies are introduced in their
+    # dedicated feature/platform iterations rather than this F01 baseline.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-adhya} -d ${POSTGRES_DB:-adhya}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  adhya-postgres-data:

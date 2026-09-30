@@ -1,0 +1,44 @@
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Project-level editor configuration is tracked intentionally
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Test / coverage output
+coverage/
+.coverage/
+.pytest_cache/
+.junit/
+test-results/
+
+# Build artifacts
+build/
+dist/
+target/
+bin/
+obj/
+
+# Local databases / volumes
+*.sqlite
+*.sqlite3
+docker-data/
+postgres-data/
+
+# Secrets / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/

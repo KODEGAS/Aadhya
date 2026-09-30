@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 
+# Project-level editor configuration is tracked intentionally
 # OS / editor
 .DS_Store
 Thumbs.db

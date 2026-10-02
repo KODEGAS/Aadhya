@@ -22,8 +22,8 @@ Before committing or pushing to the repository, ensure your Git configuration co
 
 ```bash
 # Configure local repository identity with your email and username
-git config user.name your-username
-git config user.email "your-email
+git config user.name "your-username"
+git config user.email "your-email@example.com"
 
 # Verify configuration
 git config user.name
@@ -107,6 +107,11 @@ make openchoreo-down
 # 5. Full Platform Stack (All services)
 make platform-up
 make platform-down
+### Go Clinical Backend Service
+```bash
+make test        # Run Go unit and integration test suite
+make build       # Compile server binary into bin/server
+make run         # Run Go clinical backend service on port 8080 (http://localhost:8080)
 ```
 
 ---

@@ -1,13 +1,14 @@
-.PHONY: help validate compose-config db-up db-down k8s-render-base k8s-render-dev
+.PHONY: help validate compose-config db-up db-down db-logs db-ps db-shell
 
 help:
-	@echo "Available Makefile targets:"
+	@echo "Available Makefile targets (Docker Compose workflow):"
 	@echo "  make validate         - Validate repository foundation files and env safety"
 	@echo "  make compose-config   - Validate docker-compose.yml configuration"
 	@echo "  make db-up            - Start local PostgreSQL database container"
 	@echo "  make db-down          - Stop local PostgreSQL database container"
-	@echo "  make k8s-render-base  - Render Kubernetes base manifests via Kustomize"
-	@echo "  make k8s-render-dev   - Render Kubernetes dev overlay manifests via Kustomize"
+	@echo "  make db-logs          - Follow PostgreSQL database container logs"
+	@echo "  make db-ps            - Check PostgreSQL container status and health"
+	@echo "  make db-shell         - Open psql shell inside the running database container"
 
 validate:
 	@test -f AGENTS.md
@@ -30,8 +31,11 @@ db-up:
 db-down:
 	docker compose down
 
-k8s-render-base:
-	kubectl kustomize k8s/base
+db-logs:
+	docker compose logs -f postgres
 
-k8s-render-dev:
-	kubectl kustomize k8s/overlays/dev
+db-ps:
+	docker compose ps
+
+db-shell:
+	docker compose exec postgres psql -U $${POSTGRES_USER:-adhya} -d $${POSTGRES_DB:-adhya}

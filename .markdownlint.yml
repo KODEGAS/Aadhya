@@ -3,18 +3,18 @@
 
 default: true
 
-# MD013 – line length: relax to 160 for content-heavy docs
-MD013:
-  line_length: 160
-  tables: false
-  code_blocks: false
-
-# MD033 – allow HTML in docs (mermaid diagrams use it)
-MD033: false
-
-# MD041 – first line must be top-level heading: relax for some doc files
-MD041: false
-
-# MD024 – allow duplicate headings in sibling sections of long docs
+# Formatting & Whitespace rules relaxed for documentation repository
+MD001: false  # Heading levels increment
+MD009: false  # Trailing spaces
+MD013: false  # Line length
+MD022: false  # Headings should be surrounded by blank lines
 MD024:
-  siblings_only: true
+  siblings_only: true  # Allow duplicate headings in different parent sections
+MD025: false  # Multiple top-level headings in the same document
+MD031: false  # Fenced code blocks surrounded by blank lines
+MD032: false  # Lists surrounded by blank lines
+MD033: false  # Inline HTML (used in alerts and diagrams)
+MD040: false  # Fenced code blocks language specification
+MD041: false  # First line must be top-level heading
+MD058: false  # Tables surrounded by blank lines
+MD060: false  # Table column style

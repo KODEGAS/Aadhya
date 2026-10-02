@@ -1,0 +1,20 @@
+# Markdownlint configuration
+# See: https://github.com/DavidAnson/markdownlint#rules--aliases
+
+default: true
+
+# MD013 – line length: relax to 160 for content-heavy docs
+MD013:
+  line_length: 160
+  tables: false
+  code_blocks: false
+
+# MD033 – allow HTML in docs (mermaid diagrams use it)
+MD033: false
+
+# MD041 – first line must be top-level heading: relax for some doc files
+MD041: false
+
+# MD024 – allow duplicate headings in sibling sections of long docs
+MD024:
+  siblings_only: true

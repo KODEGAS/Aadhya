@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - network-policy.yaml
+  - postgres-deployment.yaml
+  # secrets-template.yaml is intentionally excluded from the rendered output;
+  # apply separately after populating real values via your secret manager.

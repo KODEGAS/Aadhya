@@ -74,7 +74,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar -xz -C /tmp
+          GITLEAKS_VERSION="8.18.2"
+          GITLEAKS_SHA256="6298c9235dfc9278c14b28afd9b7fa4e6f4a289cb1974bd27949fc1e9122bdee"
+          ARCHIVE_PATH="/tmp/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+
+          curl -sSfL -o "${ARCHIVE_PATH}" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  ${ARCHIVE_PATH}" | sha256sum -c -
+          tar -xzf "${ARCHIVE_PATH}" -C /tmp
           /tmp/gitleaks detect --source . --verbose --no-git
 
   markdown-lint:

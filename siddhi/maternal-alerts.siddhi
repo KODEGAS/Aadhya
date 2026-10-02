@@ -1,11 +1,29 @@
 @App:name("MaternalAlertRules")
-@App:description("Real-time clinical stream processing for maternal alerts (FHR anomaly and Severe Anemia)")
+@App:description("Real-time clinical stream processing prototype for maternal alerts (FHR anomaly and Severe Anemia)")
 
--- Inbound HTTP stream for Fetal Heart Rate observations
+-- =============================================================================
+-- SECURITY BOUNDARY & ARCHITECTURAL NOTICE (LOCAL DEV / DEMO ONLY)
+-- =============================================================================
+-- 1. Development & Demo Scope:
+--    The HTTP receiver endpoints below (/fhr and /hb) are provided strictly for
+--    local developer evaluation, rule testing, and synthetic event replay.
+-- 2. Security Limitations:
+--    These endpoints lack authentication, caller authorization, TLS termination,
+--    input sanitization, and cryptographic payload provenance. They MUST NOT be
+--    exposed to public networks or treated as production clinical interfaces.
+-- 3. Production Architecture (F13 Event Processing & F14 Gateway):
+--    In production, clinical observation events are ingested via the secure API
+--    gateway (WSO2 APIM / Choreo Connect) with OAuth2 bearer token validation,
+--    RBAC enforcement, and data provenance checks. Siddhi then consumes from
+--    an authenticated, encrypted internal message broker (e.g. Kafka/NATS)
+--    with no direct external HTTP ingress.
+-- =============================================================================
+
+-- Inbound HTTP stream for Fetal Heart Rate observations (Local synthetic events only)
 @source(type='http', receiver.url='http://0.0.0.0:8006/fhr', @map(type='json'))
 define stream FhrStream (patientId string, pregnancyId string, fhr int, measuredAt string);
 
--- Inbound HTTP stream for Hemoglobin measurements
+-- Inbound HTTP stream for Hemoglobin measurements (Local synthetic events only)
 @source(type='http', receiver.url='http://0.0.0.0:8006/hb', @map(type='json'))
 define stream HbStream (patientId string, pregnancyId string, hb double, measuredAt string);
 

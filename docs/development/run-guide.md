@@ -21,9 +21,9 @@ Ensure the following tools are installed on your workstation:
 Before committing or pushing to the repository, ensure your Git configuration complies with the project's identity and signing requirements:
 
 ```bash
-# Configure local repository identity
-git config user.name "kavix"
-git config user.email "kavix@yahoo.com"
+# Configure local repository identity with your email and username
+git config user.name your-username
+git config user.email "your-email
 
 # Verify configuration
 git config user.name
@@ -34,7 +34,7 @@ git config user.email
 > **Commit Sign-Off Required:**
 > All git commits must be signed off with `-s` (`--signoff`).
 > Every commit message will include:
-> `Signed-off-by: kavix <kavix@yahoo.com>`
+> `Signed-off-by: your-username <your-email>`
 
 ---
 

@@ -1,4 +1,7 @@
 services:
+  # ────────────────────────────────────────────────────────────────────────────
+  # 1. PostgreSQL Clinical Database (Core Baseline)
+  # ────────────────────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: adhya-postgres
@@ -11,13 +14,147 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - adhya-postgres-data:/var/lib/postgresql/data
-    # FHIR server and other platform dependencies are introduced in their
-    # dedicated feature/platform iterations rather than this F01 baseline.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-adhya} -d ${POSTGRES_DB:-adhya}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - adhya-net
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 2. Siddhi Stream Processor (CEP & Event Correlation)
+  # ────────────────────────────────────────────────────────────────────────────
+  siddhi-runner:
+    image: siddhiio/siddhi-runner-alpine:5.1.2
+    container_name: adhya-siddhi
+    restart: unless-stopped
+    ports:
+      - "${SIDDHI_HTTP_PORT:-8006}:8006"   # HTTP event receiver / webhook
+      - "${SIDDHI_MGMT_PORT:-9091}:9090"   # Siddhi management API
+    volumes:
+      - ./siddhi:/home/siddhi-runner/siddhi-files
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - siddhi
+      - platform
+      - all
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 3. WSO2 API Manager 4.3.0 (API Gateway, Rate Limiting, Policies)
+  # ────────────────────────────────────────────────────────────────────────────
+  wso2-apim:
+    image: wso2/wso2am:4.3.0
+    container_name: adhya-wso2-apim
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Xms1024m -Xmx2048m -XX:+UseG1GC
+    ports:
+      - "${WSO2_APIM_CONSOLE_PORT:-9443}:9443"  # Management / Publisher / DevPortal
+      - "${WSO2_APIM_GATEWAY_HTTPS:-8243}:8243" # HTTPS API Gateway
+      - "${WSO2_APIM_GATEWAY_HTTP:-8280}:8280"  # HTTP API Gateway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - wso2
+      - platform
+      - all
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 4. WSO2 Identity Server 7.0.0 (IAM, OAuth2/OIDC, RBAC)
+  # ────────────────────────────────────────────────────────────────────────────
+  wso2-is:
+    image: wso2/wso2is:7.0.0
+    container_name: adhya-wso2-is
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Xms1024m -Xmx2048m -XX:+UseG1GC
+    ports:
+      - "${WSO2_IS_PORT:-9444}:9443"  # Remapped to 9444 to avoid conflict with APIM 9443
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - wso2
+      - platform
+      - all
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 5. WSO2 Healthcare / Micro Integrator with FHIR Accelerator
+  # ────────────────────────────────────────────────────────────────────────────
+  wso2-fhir:
+    image: wso2/wso2mi:4.3.0
+    container_name: adhya-wso2-fhir
+    restart: unless-stopped
+    ports:
+      - "${WSO2_FHIR_HTTP_PORT:-8290}:8290"  # FHIR transformation ingress
+      - "${WSO2_FHIR_HTTPS_PORT:-8253}:8253"
+      - "${WSO2_MI_MGMT_PORT:-9164}:9164"    # MI Management Dashboard
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - fhir
+      - platform
+      - all
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 6. HAPI FHIR JPA Server (HL7 FHIR R4 Reference Implementation)
+  # ────────────────────────────────────────────────────────────────────────────
+  hapi-fhir:
+    image: hapiproject/hapi:v7.4.0
+    container_name: adhya-hapi-fhir
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-adhya}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-adhya}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      HAPI_FHIR_FHIR_VERSION: R4
+    ports:
+      - "${FHIR_SERVER_PORT:-8080}:8080"  # FHIR base URL: http://localhost:8080/fhir/
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - fhir
+      - platform
+      - all
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # 7. OpenChoreo / Choreo Connect (Cloud-Native Developer Platform Gateway)
+  # ────────────────────────────────────────────────────────────────────────────
+  openchoreo-router:
+    image: wso2/choreo-connect-router:1.2.0
+    container_name: adhya-openchoreo-router
+    restart: unless-stopped
+    ports:
+      - "${OPENCHOREO_ROUTER_PORT:-9095}:9095" # Choreo Gateway HTTPS
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - adhya-net
+    profiles:
+      - openchoreo
+      - platform
+      - all
+
+networks:
+  adhya-net:
+    driver: bridge
 
 volumes:
   adhya-postgres-data:

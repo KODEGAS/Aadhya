@@ -1,0 +1,26 @@
+@App:name("MaternalAlertRules")
+@App:description("Real-time clinical stream processing for maternal alerts (FHR anomaly and Severe Anemia)")
+
+-- Inbound HTTP stream for Fetal Heart Rate observations
+@source(type='http', receiver.url='http://0.0.0.0:8006/fhr', @map(type='json'))
+define stream FhrStream (patientId string, pregnancyId string, fhr int, measuredAt string);
+
+-- Inbound HTTP stream for Hemoglobin measurements
+@source(type='http', receiver.url='http://0.0.0.0:8006/hb', @map(type='json'))
+define stream HbStream (patientId string, pregnancyId string, hb double, measuredAt string);
+
+-- Outbound Alert Stream
+@sink(type='log', prefix='[CLINICAL ALERT]')
+define stream AlertStream (alertType string, patientId string, pregnancyId string, value double, alertTime string, message string);
+
+-- Rule 1: Fetal Distress Alert (FHR < 110 or > 160)
+@info(name='FhrAnomalyRule')
+from FhrStream[fhr < 110 or fhr > 160]
+select "FETAL_HEART_RATE_ANOMALY" as alertType, patientId, pregnancyId, convert(fhr, 'double') as value, measuredAt as alertTime, "Abnormal fetal heart rate detected outside normal 110-160 bpm range" as message
+insert into AlertStream;
+
+-- Rule 2: Severe Maternal Anemia Alert (Hb < 7.0 g/dL)
+@info(name='SevereAnemiaRule')
+from HbStream[hb < 7.0]
+select "SEVERE_MATERNAL_ANEMIA" as alertType, patientId, pregnancyId, hb as value, measuredAt as alertTime, "Severe maternal anemia detected: Hb < 7.0 g/dL" as message
+insert into AlertStream;

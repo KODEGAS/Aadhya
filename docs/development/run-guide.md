@@ -1,6 +1,6 @@
 # Execution & Run Guide for Aadhya (Docker Compose)
 
-This guide provides instructions for setting up, running, testing, and validating the Aadhya platform locally using **Docker Compose**.
+This guide provides instructions for setting up, running, testing, and validating the Aadhya platform locally using **Docker Compose** profiles.
 
 ---
 
@@ -54,71 +54,80 @@ Ensure `.env` remains uncommitted (verified by `.gitignore` and CI checks).
 
 ---
 
-## 4. Running the Local Database Stack (Docker Compose)
+## 4. Platform Services & Docker Compose Profiles
 
-Aadhya uses Docker Compose for orchestrating local dependencies with container health checks.
+The stack supports modular Compose profiles to run only what you need:
 
-### Inspect Available Makefile Targets
+| Service | Container | Image Version | Ports | Profile |
+|---|---|---|---|---|
+| **PostgreSQL** | `adhya-postgres` | `postgres:16-alpine` | `5432` | *(default)* |
+| **Siddhi Stream Processor** | `adhya-siddhi` | `siddhiio/siddhi-runner-alpine:5.1.2` | `8006, 9091` | `siddhi` |
+| **WSO2 API Manager** | `adhya-wso2-apim` | `wso2/wso2am:4.3.0` | `9443, 8243, 8280` | `wso2` |
+| **WSO2 Identity Server** | `adhya-wso2-is` | `wso2/wso2is:7.0.0` | `9444` | `wso2` |
+| **WSO2 FHIR (MI)** | `adhya-wso2-fhir` | `wso2/wso2mi:4.3.0` | `8290, 8253, 9164` | `fhir` |
+| **HAPI FHIR Server** | `adhya-hapi-fhir` | `hapiproject/hapi:v7.4.0` | `8080` | `fhir` |
+| **OpenChoreo Router** | `adhya-openchoreo-router` | `wso2/choreo-connect-router:1.2.0` | `9095` | `openchoreo` |
+
+---
+
+## 5. Running Services via Makefile
+
 ```bash
+# View all available Makefile commands
 make help
 ```
 
-### Start the PostgreSQL Container
+### Core Database (Fast local dev baseline)
 ```bash
-make db-up
-```
-*(Runs `docker compose up -d postgres`)*
-
-### Verify Service Health & Status
-```bash
-make db-ps
-```
-Wait until the status displays `healthy`.
-
-### Follow Database Logs
-```bash
-make db-logs
+make db-up       # Start Postgres (background)
+make db-ps       # Check health status
+make db-logs     # Follow logs
+make db-shell    # Interactive psql shell
+make db-down     # Stop Postgres
 ```
 
-### Connect to Database via Interactive Shell
+### Starting Specific Subsystems
 ```bash
-make db-shell
-```
-*(Executes `psql -U adhya -d adhya` inside the running container)*
+# 1. Siddhi Stream Processing (CEP & Clinical Rules)
+make siddhi-up
+make siddhi-down
 
-### Stop the Database
-```bash
-make db-down
+# 2. WSO2 API Manager + Identity Server (API Gateway & IAM)
+make wso2-up
+make wso2-down
+
+# 3. FHIR Services (WSO2 MI Healthcare + HAPI FHIR JPA)
+make fhir-up
+make fhir-down
+
+# 4. OpenChoreo (Choreo Connect Router)
+make openchoreo-up
+make openchoreo-down
+
+# 5. Full Platform Stack (All services)
+make platform-up
+make platform-down
 ```
 
 ---
 
-## 5. Validation, Linters & Quality Gates
+## 6. Validation, Linters & Quality Gates
 
 Run the local quality checks before opening a pull request:
 
 ```bash
-# 1. Validate repository structure & prohibited files
+# 1. Validate repository structure, prohibited files & markdown linting
 make validate
 
-# 2. Validate Docker Compose configuration
+# 2. Validate Docker Compose service definitions
 make compose-config
 ```
 
-### Automated CI Pipeline Checks
-The repository CI (`.github/workflows/ci.yml`) executes:
-1. **Repository Validation:** Ensures essential architecture, workflow, and coding-standards documents exist.
-2. **Environment & Secret File Checks:** Rejects committed `.env` files and `.pem`/`.key` files.
-3. **YAML Lint (`yamllint`):** Validates all YAML files against `.yamllint.yml`.
-4. **Secret Scanning (`gitleaks`):** Detects hard-coded API keys, tokens, and credentials.
-5. **Markdown Lint (`markdownlint`):** Checks documentation format and headers.
-6. **Docker Compose Validation:** Verifies Compose syntax and service definitions.
-
 ---
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
-* **Port 5432 already in use on host:**
-  Override the host port in `.env` by setting `POSTGRES_PORT=5433` or stop any locally running PostgreSQL instance on your host.
-* **Database not ready:**
-  The PostgreSQL container defines a health check using `pg_isready`. Give it approximately 5–10 seconds to finish initializing before running dependent commands.
+* **Port conflicts:**
+  Adjust any conflicting port in `.env` (e.g. `POSTGRES_PORT=5433`, `FHIR_SERVER_PORT=8081`).
+* **Memory usage with WSO2 services:**
+  WSO2 APIM and IS require at least 2GB RAM allocated to Docker Desktop. When working on features that only require database persistence, use `make db-up` to conserve memory.

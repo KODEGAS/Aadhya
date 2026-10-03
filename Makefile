@@ -1,10 +1,13 @@
-.PHONY: help validate lint-md compose-config db-up db-down db-logs db-ps db-shell \
+.PHONY: help validate lint-md test build run compose-config db-up db-down db-logs db-ps db-shell \
         siddhi-up siddhi-down wso2-up wso2-down fhir-up fhir-down openchoreo-up openchoreo-down \
         platform-up platform-down
 
 help:
-	@echo "Available Makefile targets (Docker Compose workflow):"
-	@echo "  make validate         - Validate foundation files, env safety, and markdown linting"
+	@echo "Available Makefile targets:"
+	@echo "  make validate         - Run foundation validation, markdownlint, and Go test suite"
+	@echo "  make test             - Run all Go unit and integration tests"
+	@echo "  make build            - Build Go clinical backend binary (bin/server)"
+	@echo "  make run              - Run Go clinical backend service locally"
 	@echo "  make lint-md          - Run markdownlint on all documentation and Markdown files"
 	@echo "  make compose-config   - Validate docker-compose.yml configuration"
 	@echo ""
@@ -27,7 +30,7 @@ help:
 	@echo "  make platform-up      - Start full platform preview (Postgres, Siddhi, WSO2, FHIR, OpenChoreo)"
 	@echo "  make platform-down    - Stop all platform containers"
 
-validate: lint-md
+validate: lint-md test
 	@test -f AGENTS.md
 	@test -f docs/architecture/ARCHITECTURE.md
 	@test -f docs/development/git-workflow.md
@@ -38,6 +41,16 @@ validate: lint-md
 	@test ! -f .env
 	@test ! -f .env.local
 	@echo "All foundation and environment checks passed."
+
+test:
+	go test -v ./...
+
+build:
+	mkdir -p bin
+	go build -v -o bin/server ./cmd/server
+
+run:
+	go run ./cmd/server
 
 lint-md:
 	@if command -v npx >/dev/null 2>&1; then \

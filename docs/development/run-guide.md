@@ -138,6 +138,11 @@ make openchoreo-down
 # 5. Full Platform Preview (All services)
 make platform-up
 make platform-down
+### Go Clinical Backend Service
+```bash
+make test        # Run Go unit and integration test suite
+make build       # Compile server binary into bin/server
+make run         # Run Go clinical backend service on port 8080 (http://localhost:8080)
 ```
 
 ---

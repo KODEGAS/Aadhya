@@ -61,7 +61,14 @@ The original project specification established the technical foundation around *
 
 ---
 
-# 🎯 Problem Statement
+## ⚡ Quick Navigation & Engineering Guides
+
+* 🚀 **[Execution & Run Guide](docs/development/run-guide.md)** — Step-by-step developer guide for running locally with Docker Compose, database management, and running quality checks.
+* 🩺 **[Mother & Child Lifecycle Domain Specification](docs/domain/mother-child-lifecycle.md)** — Comprehensive clinical domain model synthesized from Issues #4, #5, #8, #9, #10, #22, #25, #26, #27, #28, #29, #30, #31, and #32.
+* 🏛️ **[System Architecture](docs/architecture/ARCHITECTURE.md)** — Overall system topology, FHIR mapping, and sequence diagrams.
+* 🌿 **[Git & Branching Workflow](docs/development/git-workflow.md)** — Branch naming, commit conventions, and PR checklist.
+
+---
 
 Maternal and child healthcare requires information to remain available across multiple stages of a patient's healthcare journey.
 

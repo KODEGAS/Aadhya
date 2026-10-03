@@ -1,6 +1,6 @@
 name: CI
 
-on:
+"on":
   push:
     branches: ["main"]
   pull_request:
@@ -46,3 +46,80 @@ jobs:
             echo "Potential private-key material is tracked."
             exit 1
           fi
+
+  go-tests:
+    name: Go build & tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Build server binary
+        run: go build -v ./cmd/server
+
+      - name: Run unit and integration tests
+        run: go test -v -race ./...
+
+  yaml-lint:
+    name: YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: |
+          yamllint -c .yamllint.yml .
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install and run gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          GITLEAKS_VERSION="8.18.2"
+          GITLEAKS_SHA256="6298c9235dfc9278c14b28afd9b7fa4e6f4a289cb1974bd27949fc1e9122bdee"
+          ARCHIVE_PATH="/tmp/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+
+          curl -sSfL -o "${ARCHIVE_PATH}" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  ${ARCHIVE_PATH}" | sha256sum -c -
+          tar -xzf "${ARCHIVE_PATH}" -C /tmp
+          /tmp/gitleaks detect --source . --verbose --no-git
+
+  markdown-lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"
+          config: ".markdownlint.yml"
+
+  compose-config:
+    name: Docker Compose config check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: docker compose --profile platform config --quiet

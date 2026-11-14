@@ -16,6 +16,13 @@ npm run dev
 
 `.npmrc` sets `legacy-peer-deps=true` because a plain `npm install` hits an npm resolver bug with this dependency set.
 
+## Pages
+
+| Route       | Page                               |
+| ----------- | ---------------------------------- |
+| `/`         | Landing page with demo sign-in     |
+| `/clinical` | Clinical dashboard (doctor portal) |
+
 ## Scripts
 
 | Command          | What it does                     |

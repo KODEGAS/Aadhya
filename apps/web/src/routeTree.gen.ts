@@ -10,33 +10,51 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClinicalRouteImport } from './routes/clinical'
+import { Route as ClinicalIndexRouteImport } from './routes/clinical.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClinicalRoute = ClinicalRouteImport.update({
+  id: '/clinical',
+  path: '/clinical',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClinicalIndexRoute = ClinicalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClinicalRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/clinical': typeof ClinicalRouteWithChildren
+  '/clinical/': typeof ClinicalIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/clinical': typeof ClinicalIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/clinical': typeof ClinicalRouteWithChildren
+  '/clinical/': typeof ClinicalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/clinical' | '/clinical/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/clinical'
+  id: '__root__' | '/' | '/clinical' | '/clinical/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClinicalRoute: typeof ClinicalRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +66,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clinical': {
+      id: '/clinical'
+      path: '/clinical'
+      fullPath: '/clinical'
+      preLoaderRoute: typeof ClinicalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinical/': {
+      id: '/clinical/'
+      path: '/'
+      fullPath: '/clinical/'
+      preLoaderRoute: typeof ClinicalIndexRouteImport
+      parentRoute: typeof ClinicalRoute
+    }
   }
 }
 
+interface ClinicalRouteChildren {
+  ClinicalIndexRoute: typeof ClinicalIndexRoute
+}
+
+const ClinicalRouteChildren: ClinicalRouteChildren = {
+  ClinicalIndexRoute: ClinicalIndexRoute,
+}
+
+const ClinicalRouteWithChildren = ClinicalRoute._addFileChildren(
+  ClinicalRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClinicalRoute: ClinicalRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

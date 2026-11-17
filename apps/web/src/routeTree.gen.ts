@@ -9,27 +9,96 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClinicalRouteImport } from './routes/clinical'
+import { Route as ClinicalIndexRouteImport } from './routes/clinical.index'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClinicalRoute = ClinicalRouteImport.update({
+  id: '/clinical',
+  path: '/clinical',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClinicalIndexRoute = ClinicalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ClinicalRoute,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/clinical': typeof ClinicalRouteWithChildren
+  '/clinical/': typeof ClinicalIndexRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/clinical': typeof ClinicalIndexRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/clinical': typeof ClinicalRouteWithChildren
+  '/clinical/': typeof ClinicalIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths: '/' | '/clinical' | '/clinical/'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to: '/' | '/clinical'
+  id: '__root__' | '/' | '/clinical' | '/clinical/'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  ClinicalRoute: typeof ClinicalRouteWithChildren
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinical': {
+      id: '/clinical'
+      path: '/clinical'
+      fullPath: '/clinical'
+      preLoaderRoute: typeof ClinicalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinical/': {
+      id: '/clinical/'
+      path: '/'
+      fullPath: '/clinical/'
+      preLoaderRoute: typeof ClinicalIndexRouteImport
+      parentRoute: typeof ClinicalRoute
+    }
+  }
+}
+
+interface ClinicalRouteChildren {
+  ClinicalIndexRoute: typeof ClinicalIndexRoute
+}
+
+const ClinicalRouteChildren: ClinicalRouteChildren = {
+  ClinicalIndexRoute: ClinicalIndexRoute,
+}
+
+const ClinicalRouteWithChildren = ClinicalRoute._addFileChildren(
+  ClinicalRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  ClinicalRoute: ClinicalRouteWithChildren,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()

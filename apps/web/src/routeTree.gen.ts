@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClinicalRouteImport } from './routes/clinical'
 import { Route as ClinicalIndexRouteImport } from './routes/clinical.index'
+import { Route as ClinicalPregnanciesIndexRouteImport } from './routes/clinical.pregnancies.index'
+import { Route as ClinicalPregnanciesIdRouteImport } from './routes/clinical.pregnancies.$id'
+import { Route as ClinicalPregnanciesIdIndexRouteImport } from './routes/clinical.pregnancies.$id.index'
+import { Route as ClinicalPregnanciesIdUltrasoundRouteImport } from './routes/clinical.pregnancies.$id.ultrasound'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,28 +32,82 @@ const ClinicalIndexRoute = ClinicalIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ClinicalRoute,
 } as any)
+const ClinicalPregnanciesIndexRoute =
+  ClinicalPregnanciesIndexRouteImport.update({
+    id: '/pregnancies/',
+    path: '/pregnancies/',
+    getParentRoute: () => ClinicalRoute,
+  } as any)
+const ClinicalPregnanciesIdRoute = ClinicalPregnanciesIdRouteImport.update({
+  id: '/pregnancies/$id',
+  path: '/pregnancies/$id',
+  getParentRoute: () => ClinicalRoute,
+} as any)
+const ClinicalPregnanciesIdIndexRoute =
+  ClinicalPregnanciesIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ClinicalPregnanciesIdRoute,
+  } as any)
+const ClinicalPregnanciesIdUltrasoundRoute =
+  ClinicalPregnanciesIdUltrasoundRouteImport.update({
+    id: '/ultrasound',
+    path: '/ultrasound',
+    getParentRoute: () => ClinicalPregnanciesIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clinical': typeof ClinicalRouteWithChildren
   '/clinical/': typeof ClinicalIndexRoute
+  '/clinical/pregnancies/$id': typeof ClinicalPregnanciesIdRouteWithChildren
+  '/clinical/pregnancies/': typeof ClinicalPregnanciesIndexRoute
+  '/clinical/pregnancies/$id/ultrasound': typeof ClinicalPregnanciesIdUltrasoundRoute
+  '/clinical/pregnancies/$id/': typeof ClinicalPregnanciesIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clinical': typeof ClinicalIndexRoute
+  '/clinical/pregnancies': typeof ClinicalPregnanciesIndexRoute
+  '/clinical/pregnancies/$id/ultrasound': typeof ClinicalPregnanciesIdUltrasoundRoute
+  '/clinical/pregnancies/$id': typeof ClinicalPregnanciesIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/clinical': typeof ClinicalRouteWithChildren
   '/clinical/': typeof ClinicalIndexRoute
+  '/clinical/pregnancies/$id': typeof ClinicalPregnanciesIdRouteWithChildren
+  '/clinical/pregnancies/': typeof ClinicalPregnanciesIndexRoute
+  '/clinical/pregnancies/$id/ultrasound': typeof ClinicalPregnanciesIdUltrasoundRoute
+  '/clinical/pregnancies/$id/': typeof ClinicalPregnanciesIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/clinical' | '/clinical/'
+  fullPaths:
+    | '/'
+    | '/clinical'
+    | '/clinical/'
+    | '/clinical/pregnancies/$id'
+    | '/clinical/pregnancies/'
+    | '/clinical/pregnancies/$id/ultrasound'
+    | '/clinical/pregnancies/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clinical'
-  id: '__root__' | '/' | '/clinical' | '/clinical/'
+  to:
+    | '/'
+    | '/clinical'
+    | '/clinical/pregnancies'
+    | '/clinical/pregnancies/$id/ultrasound'
+    | '/clinical/pregnancies/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/clinical'
+    | '/clinical/'
+    | '/clinical/pregnancies/$id'
+    | '/clinical/pregnancies/'
+    | '/clinical/pregnancies/$id/ultrasound'
+    | '/clinical/pregnancies/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,15 +138,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClinicalIndexRouteImport
       parentRoute: typeof ClinicalRoute
     }
+    '/clinical/pregnancies/': {
+      id: '/clinical/pregnancies/'
+      path: '/pregnancies'
+      fullPath: '/clinical/pregnancies/'
+      preLoaderRoute: typeof ClinicalPregnanciesIndexRouteImport
+      parentRoute: typeof ClinicalRoute
+    }
+    '/clinical/pregnancies/$id': {
+      id: '/clinical/pregnancies/$id'
+      path: '/pregnancies/$id'
+      fullPath: '/clinical/pregnancies/$id'
+      preLoaderRoute: typeof ClinicalPregnanciesIdRouteImport
+      parentRoute: typeof ClinicalRoute
+    }
+    '/clinical/pregnancies/$id/': {
+      id: '/clinical/pregnancies/$id/'
+      path: '/'
+      fullPath: '/clinical/pregnancies/$id/'
+      preLoaderRoute: typeof ClinicalPregnanciesIdIndexRouteImport
+      parentRoute: typeof ClinicalPregnanciesIdRoute
+    }
+    '/clinical/pregnancies/$id/ultrasound': {
+      id: '/clinical/pregnancies/$id/ultrasound'
+      path: '/ultrasound'
+      fullPath: '/clinical/pregnancies/$id/ultrasound'
+      preLoaderRoute: typeof ClinicalPregnanciesIdUltrasoundRouteImport
+      parentRoute: typeof ClinicalPregnanciesIdRoute
+    }
   }
 }
 
+interface ClinicalPregnanciesIdRouteChildren {
+  ClinicalPregnanciesIdUltrasoundRoute: typeof ClinicalPregnanciesIdUltrasoundRoute
+  ClinicalPregnanciesIdIndexRoute: typeof ClinicalPregnanciesIdIndexRoute
+}
+
+const ClinicalPregnanciesIdRouteChildren: ClinicalPregnanciesIdRouteChildren = {
+  ClinicalPregnanciesIdUltrasoundRoute: ClinicalPregnanciesIdUltrasoundRoute,
+  ClinicalPregnanciesIdIndexRoute: ClinicalPregnanciesIdIndexRoute,
+}
+
+const ClinicalPregnanciesIdRouteWithChildren =
+  ClinicalPregnanciesIdRoute._addFileChildren(
+    ClinicalPregnanciesIdRouteChildren,
+  )
+
 interface ClinicalRouteChildren {
   ClinicalIndexRoute: typeof ClinicalIndexRoute
+  ClinicalPregnanciesIdRoute: typeof ClinicalPregnanciesIdRouteWithChildren
+  ClinicalPregnanciesIndexRoute: typeof ClinicalPregnanciesIndexRoute
 }
 
 const ClinicalRouteChildren: ClinicalRouteChildren = {
   ClinicalIndexRoute: ClinicalIndexRoute,
+  ClinicalPregnanciesIdRoute: ClinicalPregnanciesIdRouteWithChildren,
+  ClinicalPregnanciesIndexRoute: ClinicalPregnanciesIndexRoute,
 }
 
 const ClinicalRouteWithChildren = ClinicalRoute._addFileChildren(

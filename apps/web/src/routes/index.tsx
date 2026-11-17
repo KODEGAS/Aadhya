@@ -74,7 +74,7 @@ function SignIn() {
           </ol>
         </div>
         <p className="flex items-center gap-2 text-sm opacity-70">
-          <ShieldCheck className="size-4" /> HL7 FHIR R4 · role-based access · full audit trail
+          HL7 FHIR R4 · role-based access · full audit trail
         </p>
       </section>
 

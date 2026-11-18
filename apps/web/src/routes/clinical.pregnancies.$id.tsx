@@ -13,7 +13,11 @@ export const Route = createFileRoute("/clinical/pregnancies/$id")({
   component: PregnancyLayout,
 });
 
-const tabs = [{ to: "/clinical/pregnancies/$id/ultrasound", label: "Ultrasound" }] as const;
+const tabs = [
+  { to: "/clinical/pregnancies/$id/ultrasound", label: "Ultrasound" },
+  { to: "/clinical/pregnancies/$id/delivery", label: "Delivery" },
+  { to: "/clinical/pregnancies/$id/postpartum", label: "Postpartum care" },
+] as const;
 
 function PregnancyLayout() {
   const { pregnancy: p, mother: m } = Route.useLoaderData();
